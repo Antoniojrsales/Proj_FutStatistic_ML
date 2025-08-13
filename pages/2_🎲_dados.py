@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils import load_data, preparar_tabela_geral
+from utils import load_raw_data, prepare_dataframe, prepare_overall, prepare_keep
 
 # --- Configuração da Página e Verificação de Login ---
 st.set_page_config(
@@ -23,10 +23,19 @@ aba1, aba2, aba3, aba4, aba5 = st.tabs(['Jogos do Dia', 'Partidas Realizadas', '
 
 # --- Lógica da Aba 1: Jogos do Dia ---
 with aba1:
-    st.subheader("🏟️ Partidas do Dia")
-    nome_da_aba = st.secrets["sheet"]["aba_jogos"]
-    df_jogos = load_data(nome_da_aba)
-
+    st.subheader(" Partidas do Dia")
+    
+    # Suponha que sua aba se chame 'Jogos_dia'
+    name_aba = "Jogos_dia" 
+    
+    # 1. Carrega os dados brutos (lista de listas)
+    raw_data = load_raw_data(name_aba)
+    
+    # 2. Prepara o DataFrame a partir dos dados brutos
+    #    'header_row_index=0' porque o cabeçalho está na primeira linha
+    df_jogos = prepare_dataframe(raw_data, header_row_index=0)
+    
+    # 3. Verifica se o DataFrame não está vazio
     if not df_jogos.empty:
         st.dataframe(df_jogos, use_container_width=True)
     else:
@@ -35,8 +44,10 @@ with aba1:
 # --- Lógica da Aba 2: Tabela Partidas Realizadas ---
 with aba2:
     st.subheader("🏆 Tabela Partidas Realizadas - Campeonato")
-    nome_da_aba = st.secrets["sheet"]["aba_scoresfixtures"]
-    df_scoresfixtures = load_data(nome_da_aba)
+    name_aba = st.secrets["sheet"]["aba_scoresfixtures"]
+
+    raw_data = load_raw_data(name_aba)
+    df_scoresfixtures = prepare_dataframe(raw_data, header_row_index=0)
     
     if not df_scoresfixtures.empty:
         st.dataframe(df_scoresfixtures, use_container_width=True)
@@ -46,20 +57,23 @@ with aba2:
 # --- Lógica da Aba 3: Tabela Geral ---
 with aba3:
     st.subheader("🏆 Tabela Geral - Campeonato")
-    nome_da_aba = st.secrets["sheet"]["aba_tabelaGeral"]
-    df_brutos = load_data(nome_da_aba)
-    df_geral = preparar_tabela_geral(df_brutos)
+    name_aba = st.secrets["sheet"]["aba_tabelaGeral"]
+    raw_data = load_raw_data(name_aba)
+    df_bruto = prepare_dataframe(raw_data, header_row_index=0)
+    df_overall = prepare_overall(df_bruto)
     
-    if not df_geral.empty:
-        st.dataframe(df_geral, use_container_width=True)
+    if not df_overall.empty:
+        st.dataframe(df_overall, use_container_width=True)
     else:
         st.info("Nenhum dado encontrado para a 'Tabela Geral'.")
 
 # --- Lógica da Aba 4: Tabela GoalKeeping ---
 with aba4:
     st.subheader(" Tabela GoalKeeping - Campeonato")
-    nome_da_aba = st.secrets["sheet"]["aba_goalkeeping"]
-    df_goalkeeping = load_data(nome_da_aba)
+    name_aba = st.secrets["sheet"]["aba_goalkeeping"]
+    raw_data = load_raw_data(name_aba)
+    df_bruto = prepare_dataframe(raw_data, header_row_index=1)
+    df_goalkeeping = prepare_keep(df_bruto)
     
     if not df_goalkeeping.empty:
         st.dataframe(df_goalkeeping, use_container_width=True)
@@ -69,8 +83,9 @@ with aba4:
 # --- Lógica da Aba 5: Tabela Shooting ---
 with aba5:
     st.subheader(" Tabela Shooting - Campeonato")
-    nome_da_aba = st.secrets["sheet"]["aba_shooting"]
-    df_shooting = load_data(nome_da_aba)
+    name_aba = st.secrets["sheet"]["aba_shooting"]
+    raw_data = load_raw_data(name_aba)
+    df_shooting = prepare_dataframe(raw_data, header_row_index=1)
     
     if not df_shooting.empty:
         st.dataframe(df_shooting, use_container_width=True)

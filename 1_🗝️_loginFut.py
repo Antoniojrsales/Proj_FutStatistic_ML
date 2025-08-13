@@ -21,7 +21,7 @@ except Exception as e:
 
 # --- Funções de Banco de Dados ---
 
-def get_user_data(username: str):
+def get_user(username: str):
     """Busca os dados de um usuário (hash da senha e papel/role)."""
     response = supabase.table('users').select('hash_password, role').eq('username', username).execute()
     if response.data:
@@ -50,7 +50,7 @@ if not st.session_state['logged_in']:
         submit = st.form_submit_button("Entrar")
 
         if submit:
-            user_data = get_user_data(username)
+            user_data = get_user(username)
             if user_data and hashlib.sha256(password.encode()).hexdigest() == user_data['hash_password']:
                 st.session_state['logged_in'] = True
                 st.session_state['username'] = username
